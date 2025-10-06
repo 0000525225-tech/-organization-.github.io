@@ -1,2 +1,1898 @@
 # -organization-.github.io
 Sistema de Conferencia Luminis
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Conferência - Luminis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --luminis-primary: #0f1a2b;
+            --luminis-secondary: #1e3a5f;
+            --luminis-indigo: #2c3e6e;
+            --luminis-gold: #d4af37;
+            --luminis-success: #27ae60;
+            --luminis-danger: #e74c3c;
+            --luminis-warning: #f39c12;
+            --border-radius: 10px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .navbar-luminis {
+            background: linear-gradient(to right, var(--luminis-primary), var(--luminis-secondary));
+        }
+
+        .luminis-logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--luminis-indigo), #1a2a57);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            border: 3px solid var(--luminis-gold);
+        }
+
+        .luminis-logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--luminis-gold);
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-luminis {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .btn-luminis-primary {
+            background: linear-gradient(to right, var(--luminis-primary), var(--luminis-secondary));
+            border: none;
+            color: white;
+            font-weight: 600;
+        }
+
+        .stats-card {
+            background: linear-gradient(to right, var(--luminis-indigo), #3498db);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        .kanban-column {
+            min-width: 280px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+        }
+
+        .kanban-column-header {
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            color: white;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .kanban-column.todo .kanban-column-header {
+            background: var(--luminis-warning);
+        }
+
+        .kanban-column.doing .kanban-column-header {
+            background: var(--luminis-indigo);
+        }
+
+        .kanban-column.done .kanban-column-header {
+            background: var(--luminis-success);
+        }
+
+        .kanban-item {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--luminis-gold);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        .step-item {
+            position: relative;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .step-item.completed {
+            border-left: 4px solid var(--luminis-success);
+        }
+        
+        .step-item.current {
+            border-left: 4px solid var(--luminis-indigo);
+        }
+        
+        .step-item.pending {
+            border-left: 4px solid #e0e0e0;
+            opacity: 0.6;
+        }
+        
+        .step-item.pending .form-control,
+        .step-item.pending .form-check-input {
+            pointer-events: none;
+        }
+        
+        .photo-upload {
+            border: 2px dashed #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .photo-upload:hover {
+            border-color: var(--luminis-indigo);
+            background-color: rgba(44, 62, 110, 0.05);
+        }
+        
+        .photo-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Estilos para as telas com fundo da marca */
+        .welcome-section,
+        .inicializacao-section,
+        .categoria-section {
+            background: linear-gradient(135deg, var(--luminis-primary) 0%, var(--luminis-secondary) 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .welcome-content,
+        .inicializacao-content,
+        .categoria-content {
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .welcome-logo,
+        .inicializacao-logo,
+        .categoria-logo {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, var(--luminis-indigo), #1a2a57);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            border: 4px solid var(--luminis-gold);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .welcome-logo-text,
+        .inicializacao-logo-text,
+        .categoria-logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--luminis-gold);
+        }
+        
+        .welcome-title,
+        .inicializacao-title,
+        .categoria-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .welcome-subtitle,
+        .inicializacao-subtitle,
+        .categoria-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: var(--luminis-gold);
+            font-weight: 500;
+        }
+        
+        .welcome-description,
+        .inicializacao-description,
+        .categoria-description {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .welcome-btn,
+        .inicializacao-btn,
+        .categoria-btn {
+            background: linear-gradient(to right, var(--luminis-gold), #e6c158);
+            border: none;
+            color: var(--luminis-primary);
+            font-weight: 600;
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .welcome-btn:hover,
+        .inicializacao-btn:hover,
+        .categoria-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .welcome-features,
+        .inicializacao-features,
+        .categoria-features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 200px;
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--luminis-gold);
+        }
+        
+        .option-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--luminis-gold);
+            transform: translateY(-5px);
+        }
+        
+        .option-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--luminis-gold);
+        }
+        
+        .option-card h5 {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .option-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .card-dark-bg {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Estilos para a captura de QR Code */
+        .qr-scanner-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        #qr-video {
+            width: 100%;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--luminis-indigo);
+        }
+        
+        .qr-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-frame {
+            width: 70%;
+            height: 70%;
+            border: 3px solid var(--luminis-gold);
+            border-radius: 10px;
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.3);
+        }
+        
+        .qr-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--luminis-success);
+        }
+        
+        .qr-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .qr-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .qr-toggle .form-check {
+            margin-right: 1rem;
+        }
+        
+        .qr-code-methods {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-luminis">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-house-check me-2"></i>
+                Luminis Consultoria
+            </a>
+            <div class="user-info text-white" id="userInfo" style="display: none;">
+                <span id="userName"></span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                    <i class="bi bi-box-arrow-right me-1"></i>Sair
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Tela de Boas-Vindas -->
+    <section id="welcomeSection" class="page-section active">
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <div class="welcome-logo">
+                    <div class="welcome-logo-text">LUMINIS</div>
+                </div>
+                
+                <h1 class="welcome-title">SEJA BEM-VINDO</h1>
+                <h2 class="welcome-subtitle">Luminis Consultoria</h2>
+                <p class="welcome-description">"Clareza nos processos, ouro nos resultados"</p>
+                
+                <button class="welcome-btn" onclick="showSection('inicializacaoSection')">
+                    <i class="bi bi-arrow-right me-2"></i>Entrar no Sistema
+                </button>
+                
+                <div class="welcome-features">
+                    <div class="feature-item">
+                        <i class="bi bi-clipboard-check feature-icon"></i>
+                        <h5>Conferência de Móveis</h5>
+                        <p class="small">Sistema completo para controle de qualidade</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-graph-up feature-icon"></i>
+                        <h5>Gestão Inteligente</h5>
+                        <p class="small">Relatórios e análises em tempo real</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="bi bi-shield-check feature-icon"></i>
+                        <h5>Segurança</h5>
+                        <p class="small">Dados protegidos e acessos controlados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tela de Inicialização (Segunda Aba) -->
+    <section id="inicializacaoSection" class="page-section">
+        <div class="inicializacao-section">
+            <div class="inicializacao-content">
+                <div class="inicializacao-logo">
+                    <div class="inicializacao-logo-text">LUMINIS</div>
+                </div>
+                
+                <h2 class="inicializacao-title">Acesso ao Sistema</h2>
+                <p class="inicializacao-description">Escolha como deseja acessar o sistema</p>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="option-card" onclick="showSection('cadastroSection')">
+                            <div class="text-center">
+                                <i class="bi bi-person-plus"></i>
+                                <h5>Criar Conta</h5>
+                                <p>Cadastre-se no sistema para começar a usar</p>
+                            </div>
+                        </div>
+                        
+                        <div class="option-card" onclick="showSection('categoriaSection')">
+                            <div class="text-center">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <h5>Acessar Conta</h5>
+                                <p>Faça login com suas credenciais existentes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="button" class="btn btn-outline-light w-100" onclick="showSection('welcomeSection')">
+                        <i class="bi bi-arrow-left me-2"></i>Voltar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tela de Cadastro -->
+    <section id="cadastroSection" class="page-section">
+        <div class="container min-vh-100 d-flex align-items-center justify-content-center">
+            <div class="row w-100 justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card card-dark-bg">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <div class="luminis-logo mx-auto mb-3">
+                                    <div class="luminis-logo-text">LUMINIS</div>
+                                </div>
+                                <h4 class="fw-bold">Luminis Consultoria</h4>
+                                <p class="text-muted">Criar Nova Conta</p>
+                            </div>
+
+                            <div class="alert alert-success d-none" id="cadastroSuccess">
+                                Conta criada com sucesso!
+                            </div>
+
+                            <div class="alert alert-danger d-none" id="cadastroError">
+                                Erro ao criar conta. Tente novamente.
+                            </div>
+
+                            <form id="cadastroForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Nome Completo</label>
+                                    <input type="text" class="form-control" id="nomeCompleto" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" required onblur="validarEmail(this)">
+                                    <div class="invalid-feedback" id="emailError">
+                                        Por favor, insira um email válido.
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Você faz parte de uma empresa?</label>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="empresaOption" id="empresaSim" value="sim" onchange="toggleEmpresaCampo(true)">
+                                        <label class="form-check-label" for="empresaSim">
+                                            Sim
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="empresaOption" id="empresaNao" value="nao" checked onchange="toggleEmpresaCampo(false)">
+                                        <label class="form-check-label" for="empresaNao">
+                                            Não
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 d-none" id="empresaCampo">
+                                    <label class="form-label">Nome da Empresa</label>
+                                    <select class="form-select" id="empresaSelecionada">
+                                        <option value="">Selecione uma empresa...</option>
+                                        <option value="Líder">Líder</option>
+                                        <option value="*** Estofados">*** Estofados</option>
+                                        <option value="Móveis Planalto">Móveis Planalto</option>
+                                        <option value="Casa & Conforto">Casa & Conforto</option>
+                                        <option value="Design Móveis">Design Móveis</option>
+                                        <option value="outra">Outra empresa</option>
+                                    </select>
+                                    <input type="text" class="form-control mt-2 d-none" id="outraEmpresa" placeholder="Digite o nome da sua empresa">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Usuário</label>
+                                    <select class="form-select" id="tipoUsuario" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="funcionario">Funcionário</option>
+                                        <option value="gestor">Gestor</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Usuário</label>
+                                    <input type="text" class="form-control" id="novoUsuario" required>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Senha</label>
+                                    <input type="password" class="form-control" id="novaSenha" required minlength="6">
+                                    <div class="form-text">A senha deve ter pelo menos 6 caracteres.</div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-luminis-primary w-100 mb-3">
+                                    <i class="bi bi-person-plus me-2"></i>Criar Conta
+                                </button>
+                                
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="showSection('inicializacaoSection')">
+                                    <i class="bi bi-arrow-left me-2"></i>Voltar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tela de Categorias (Terceira Aba) -->
+    <section id="categoriaSection" class="page-section">
+        <div class="categoria-section">
+            <div class="categoria-content">
+                <div class="categoria-logo">
+                    <div class="categoria-logo-text">LUMINIS</div>
+                </div>
+                
+                <h2 class="categoria-title">Tipo de Acesso</h2>
+                <p class="categoria-description">Selecione a área que deseja acessar</p>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="option-card" onclick="selectCategory('funcionario')">
+                            <div class="text-center">
+                                <i class="bi bi-person-check"></i>
+                                <h5>Área do Funcionário</h5>
+                                <p>Realizar conferências de móveis e controle de qualidade</p>
+                            </div>
+                        </div>
+                        
+                        <div class="option-card" onclick="selectCategory('gestor')">
+                            <div class="text-center">
+                                <i class="bi bi-graph-up"></i>
+                                <h5>Área do Gestor</h5>
+                                <p>Painel de gestão, relatórios e análises</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="button" class="btn btn-outline-light w-100" onclick="showSection('inicializacaoSection')">
+                        <i class="bi bi-arrow-left me-2"></i>Voltar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tela de Login -->
+    <section id="loginSection" class="page-section">
+        <div class="container min-vh-100 d-flex align-items-center justify-content-center">
+            <div class="row w-100 justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-luminis">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <div class="luminis-logo mx-auto mb-3">
+                                    <div class="luminis-logo-text">LUMINIS</div>
+                                </div>
+                                <h4 class="fw-bold">Luminis Consultoria</h4>
+                                <p class="text-muted" id="loginSubtitle">Acesso ao Sistema</p>
+                            </div>
+
+                            <div class="alert alert-danger d-none" id="loginError">
+                                Usuário ou senha incorretos!
+                            </div>
+
+                            <div class="alert alert-warning d-none" id="loginWarning">
+                                Você errou a senha <span id="tentativasErro">0</span> vezes. 
+                                <a href="#" class="alert-link" onclick="showSection('recuperarSenhaSection')">Esqueceu sua senha?</a>
+                            </div>
+
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Usuário</label>
+                                    <input type="text" class="form-control" id="usuario" required>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label">Senha</label>
+                                    <input type="password" class="form-control" id="senha" required>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-luminis-primary w-100 mb-3">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                                </button>
+                                
+                                <div class="text-center mb-3">
+                                    <a href="#" onclick="showSection('recuperarSenhaSection')">Esqueceu sua senha?</a>
+                                </div>
+                                
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="showSection('categoriaSection')">
+                                    <i class="bi bi-arrow-left me-2"></i>Voltar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Área do Funcionário - Escolha de Móvel -->
+    <section id="escolhaMovelSection" class="page-section">
+        <div class="container mt-4">
+            <div class="card card-luminis">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="fw-bold">
+                                <i class="bi bi-list-check me-2"></i>Escolha do Móvel
+                            </h2>
+                            <p class="text-muted mb-0" id="conferenteInfo">Conferente: </p>
+                        </div>
+                        <div class="stats-card">
+                            <small>Conferências Hoje</small>
+                            <h4 class="mb-0" id="conferenciasCount">0</h4>
+                        </div>
+                    </div>
+
+                    <div class="row" id="moveisGrid">
+                        <!-- Móveis carregados via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Área do Funcionário - Conferência -->
+    <section id="conferenciaSection" class="page-section">
+        <div class="container mt-4">
+            <div class="card card-luminis">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="fw-bold" id="conferenciaTitle">
+                                <i class="bi bi-clipboard-check me-2"></i>Conferência
+                            </h2>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div id="progressBar" class="progress-bar bg-success" style="width: 0%"></div>
+                            </div>
+                            <small class="text-muted" id="progressText">0% completo</small>
+                        </div>
+                        <button class="btn btn-outline-secondary" onclick="showSection('escolhaMovelSection')">
+                            <i class="bi bi-arrow-left me-2"></i>Voltar
+                        </button>
+                    </div>
+
+                    <form id="conferenciaForm">
+                        <input type="hidden" id="movelId">
+                        
+                        <!-- Etapa 1: Identificação do Móvel -->
+                        <div class="step-item current" id="step1">
+                            <h5 class="card-title">
+                                <i class="bi bi-upc-scan me-2"></i>Identificação do Móvel
+                            </h5>
+                            
+                            <!-- Opção de captura por QR Code -->
+                            <div class="qr-toggle">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="usarQrCode" onchange="toggleQrCodeMethod()">
+                                    <label class="form-check-label fw-bold" for="usarQrCode">
+                                        Usar QR Code para identificação
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="qr-code-methods" id="qrCodeMethods" style="display: none;">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Captura do Código via QR Code</label>
+                                    <div class="qr-scanner-container mb-3" id="qrScannerContainer" style="display: none;">
+                                        <video id="qr-video"></video>
+                                        <div class="qr-overlay">
+                                            <div class="qr-frame"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="qr-actions">
+                                        <button type="button" class="btn btn-primary" id="btnIniciarCamera" onclick="iniciarCamera()">
+                                            <i class="bi bi-camera me-2"></i>Iniciar Câmera
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" id="btnPararCamera" onclick="pararCamera()" style="display: none;">
+                                            <i class="bi bi-camera-video-off me-2"></i>Parar Câmera
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('qrFileInput').click()">
+                                            <i class="bi bi-upload me-2"></i>Carregar Imagem
+                                        </button>
+                                        <input type="file" id="qrFileInput" accept="image/*" style="display: none;" onchange="processarImagemQR(this.files[0])">
+                                    </div>
+                                    
+                                    <div class="qr-result mt-3" id="qrResult" style="display: none;">
+                                        <h6 class="mb-2">Código identificado:</h6>
+                                        <p class="mb-2" id="qrCodeValue"></p>
+                                        <button type="button" class="btn btn-sm btn-success" onclick="usarCodigoQR()">
+                                            <i class="bi bi-check-lg me-1"></i>Usar este código
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="limparResultadoQR()">
+                                            <i class="bi bi-x-lg me-1"></i>Limpar
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center mb-3">
+                                    <span class="text-muted">OU</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Campo de digitação manual -->
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Código do Móvel *</label>
+                                <input type="text" class="form-control" id="codigoMovel" required
+                                       placeholder="Digite o código único do móvel" oninput="verificarEtapa1()">
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" onclick="avancarParaEtapa2()" id="btnEtapa1" disabled>
+                                <i class="bi bi-arrow-right me-2"></i>Avançar
+                            </button>
+                        </div>
+
+                        <!-- Checklist -->
+                        <div id="checklistContainer">
+                            <!-- Itens carregados via JavaScript -->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Área do Gestor -->
+    <section id="painelGestorSection" class="page-section">
+        <div class="container mt-4">
+            <div class="card card-luminis">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">
+                            <i class="bi bi-speedometer2 me-2"></i>Painel de Gestão
+                        </h2>
+                        <div>
+                            <span class="badge bg-primary me-2" id="totalConferencias">0 conferências</span>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="logout()">
+                                <i class="bi bi-box-arrow-right me-2"></i>Sair
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card text-center">
+                                <i class="bi bi-check-circle display-6"></i>
+                                <h3 class="mt-2" id="totalOk">0</h3>
+                                <small>Móveis OK</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card text-center" style="background: linear-gradient(to right, #e74c3c, #c0392b);">
+                                <i class="bi bi-exclamation-triangle display-6"></i>
+                                <h3 class="mt-2" id="totalDanificado">0</h3>
+                                <small>Com Defeitos</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card text-center" style="background: linear-gradient(to right, #0f1a2b, #1e3a5f);">
+                                <i class="bi bi-people display-6"></i>
+                                <h3 class="mt-2" id="totalConferentes">0</h3>
+                                <small>Conferentes</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stats-card text-center" style="background: linear-gradient(to right, #f39c12, #e67e22);">
+                                <i class="bi bi-clock display-6"></i>
+                                <h3 class="mt-2" id="taxaConclusao">0%</h3>
+                                <small>Taxa de Conclusão</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="row mb-4">
+                        <div class="col-lg-6 mb-4">
+                            <div class="card card-luminis">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Status por Móvel</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="graficoMovel"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6 mb-4">
+                            <div class="card card-luminis">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Status por Categoria</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="graficoCategoria"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Conferências -->
+                    <div class="card card-luminis mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="bi bi-table me-2"></i>Conferências Realizadas</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Data/Hora</th>
+                                            <th>Conferente</th>
+                                            <th>Móvel</th>
+                                            <th>Código</th>
+                                            <th>Status</th>
+                                            <th>Observações</th>
+                                            <th>Fotos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="conferenciasTable">
+                                        <!-- Dados carregados via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kanban -->
+                    <div class="card card-luminis">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="bi bi-kanban me-2"></i>Plano de Ação - Móveis com Defeitos</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="kanban-board">
+                                <div class="kanban-column todo">
+                                    <div class="kanban-column-header">
+                                        <i class="bi bi-clock me-2"></i>A Fazer
+                                    </div>
+                                    <div id="todoColumn">
+                                        <!-- Itens carregados via JavaScript -->
+                                    </div>
+                                </div>
+                                <div class="kanban-column doing">
+                                    <div class="kanban-column-header">
+                                        <i class="bi bi-gear me-2"></i>Fazendo
+                                    </div>
+                                    <div id="doingColumn">
+                                        <!-- Itens carregados via JavaScript -->
+                                    </div>
+                                </div>
+                                <div class="kanban-column done">
+                                    <div class="kanban-column-header">
+                                        <i class="bi bi-check-circle me-2"></i>Feito
+                                    </div>
+                                    <div id="doneColumn">
+                                        <!-- Itens carregados via JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Dados do sistema
+        const USUARIOS = {
+            'funcionario1': { senha: '123', nome: 'funcionario1', tipo: 'funcionario', email: 'funcionario1@empresa.com' },
+            'gestor1': { senha: '123', nome: 'gestor1', tipo: 'gestor', email: 'gestor1@empresa.com' }
+        };
+
+        const MOVEIS = [
+            { id: 1, nome: 'Cadeira Executiva', categoria: 'Cadeira', icon: 'bi bi-chair' },
+            { id: 2, nome: 'Cadeira de Reunião', categoria: 'Cadeira', icon: 'bi bi-person-seat' },
+            { id: 3, nome: 'Mesa de Escritório', categoria: 'Mesa', icon: 'bi bi-table' },
+            { id: 4, nome: 'Mesa de Reunião', categoria: 'Mesa', icon: 'bi bi-tablet' },
+            { id: 5, nome: 'Sofá de Espera', categoria: 'Sofá', icon: 'bi bi-sofa' },
+            { id: 6, nome: 'Poltrona Gerencial', categoria: 'Poltrona', icon: 'bi bi-person-square' }
+        ];
+
+        const CHECKLIST_ITEMS = [
+            { id: 'estrutura', nome: 'Estrutura', descricao: 'Verificar estrutura geral do móvel' },
+            { id: 'pintura', nome: 'Pintura', descricao: 'Verificar estado da pintura' },
+            { id: 'revestimento', nome: 'Revestimento / Estofado', descricao: 'Verificar revestimento e estofamento' },
+            { id: 'acabamento', nome: 'Acabamento', descricao: 'Verificar acabamentos e detalhes' }
+        ];
+
+        // Estado da aplicação
+        let usuarioLogado = null;
+        let categoriaSelecionada = null;
+        let conferencias = JSON.parse(localStorage.getItem('conferencias')) || [];
+        let kanbanItems = JSON.parse(localStorage.getItem('kanbanItems')) || [];
+        let tentativasLogin = 0;
+        let etapaAtual = 1;
+        
+        // Variáveis para controle do QR Code
+        let qrStream = null;
+        let qrScanning = false;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sistema iniciado');
+            carregarDadosIniciais();
+            verificarSessao();
+            
+            document.getElementById('loginForm').addEventListener('submit', fazerLogin);
+            document.getElementById('cadastroForm').addEventListener('submit', criarConta);
+            document.getElementById('conferenciaForm').addEventListener('submit', finalizarConferencia);
+        });
+
+        // Funções para seleção de empresa
+        function toggleEmpresaCampo(mostrar) {
+            const empresaCampo = document.getElementById('empresaCampo');
+            const empresaSelecionada = document.getElementById('empresaSelecionada');
+            
+            if (mostrar) {
+                empresaCampo.classList.remove('d-none');
+            } else {
+                empresaCampo.classList.add('d-none');
+                empresaSelecionada.value = '';
+                document.getElementById('outraEmpresa').classList.add('d-none');
+            }
+        }
+
+        document.getElementById('empresaSelecionada').addEventListener('change', function() {
+            const outraEmpresa = document.getElementById('outraEmpresa');
+            if (this.value === 'outra') {
+                outraEmpresa.classList.remove('d-none');
+                outraEmpresa.required = true;
+            } else {
+                outraEmpresa.classList.add('d-none');
+                outraEmpresa.required = false;
+                outraEmpresa.value = '';
+            }
+        });
+
+        // Função de validação de email
+        function validarEmail(campo) {
+            const email = campo.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(email)) {
+                campo.classList.remove('is-invalid');
+                campo.classList.add('is-valid');
+                return true;
+            } else {
+                campo.classList.remove('is-valid');
+                campo.classList.add('is-invalid');
+                return false;
+            }
+        }
+
+        function carregarDadosIniciais() {
+            // Carregar móveis
+            const moveisGrid = document.getElementById('moveisGrid');
+            moveisGrid.innerHTML = MOVEIS.map(movel => `
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="${movel.icon} display-4 text-primary mb-3"></i>
+                            <h5 class="card-title">${movel.nome}</h5>
+                            <p class="text-muted">${movel.categoria}</p>
+                            <button class="btn btn-primary w-100" onclick="iniciarConferencia(${movel.id})">
+                                <i class="bi bi-play-circle me-2"></i>Iniciar Conferência
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Carregar checklist com etapas sequenciais
+            const checklistContainer = document.getElementById('checklistContainer');
+            checklistContainer.innerHTML = CHECKLIST_ITEMS.map((item, index) => `
+                <div class="step-item pending" id="step${index + 2}">
+                    <h5 class="card-title">${item.nome}</h5>
+                    <p class="text-muted small">${item.descricao}</p>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="${item.id}" 
+                                   id="${item.id}_ok" value="ok" required onchange="toggleObservacao('${item.id}')">
+                            <label class="form-check-label text-success fw-bold" for="${item.id}_ok">
+                                <i class="bi bi-check-circle me-1"></i>OK
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="${item.id}" 
+                                   id="${item.id}_danificado" value="danificado" required onchange="toggleObservacao('${item.id}')">
+                            <label class="form-check-label text-danger fw-bold" for="${item.id}_danificado">
+                                <i class="bi bi-x-circle me-1"></i>Danificado
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-warning bg-opacity-10 p-3 rounded d-none" id="${item.id}_obs_container">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-chat-left-text me-1"></i>Observações *
+                        </label>
+                        <textarea class="form-control" id="${item.id}_obs" rows="2" 
+                                  placeholder="Descreva os danos encontrados..." oninput="verificarObservacoes('${item.id}')"></textarea>
+                        
+                        <div class="mt-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-camera me-1"></i>Fotos do Problema
+                            </label>
+                            <div class="photo-upload" onclick="document.getElementById('${item.id}_foto').click()">
+                                <i class="bi bi-cloud-upload display-4 text-muted"></i>
+                                <p class="mt-2">Clique para adicionar fotos</p>
+                                <input type="file" id="${item.id}_foto" class="d-none" accept="image/*" onchange="previewFoto('${item.id}', this)">
+                                <img id="${item.id}_preview" class="photo-preview d-none">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" onclick="voltarEtapa(${index + 2})">
+                            <i class="bi bi-arrow-left me-2"></i>Voltar
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="avancarParaEtapa(${index + 3})" id="btnEtapa${index + 2}" disabled>
+                            <i class="bi bi-arrow-right me-2"></i>Avançar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Etapa final
+            checklistContainer.innerHTML += `
+                <div class="step-item pending" id="step${CHECKLIST_ITEMS.length + 2}">
+                    <h5 class="card-title text-success">
+                        <i class="bi bi-check-circle me-2"></i>Conferência Finalizada
+                    </h5>
+                    <p class="text-muted">Revise as informações antes de finalizar</p>
+                    
+                    <div class="alert alert-info">
+                        <h6>Resumo da Conferência</h6>
+                        <div id="resumoConferencia"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" onclick="voltarEtapa(${CHECKLIST_ITEMS.length + 2})">
+                            <i class="bi bi-arrow-left me-2"></i>Voltar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-lg me-2"></i>Finalizar Conferência
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Funções para captura de QR Code
+        function toggleQrCodeMethod() {
+            const usarQrCode = document.getElementById('usarQrCode').checked;
+            const qrCodeMethods = document.getElementById('qrCodeMethods');
+            
+            if (usarQrCode) {
+                qrCodeMethods.style.display = 'block';
+            } else {
+                qrCodeMethods.style.display = 'none';
+                pararCamera();
+                limparResultadoQR();
+            }
+        }
+
+        async function iniciarCamera() {
+            try {
+                const video = document.getElementById('qr-video');
+                const scannerContainer = document.getElementById('qrScannerContainer');
+                const btnIniciarCamera = document.getElementById('btnIniciarCamera');
+                const btnPararCamera = document.getElementById('btnPararCamera');
+                
+                // Solicitar acesso à câmera
+                qrStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } 
+                });
+                
+                video.srcObject = qrStream;
+                scannerContainer.style.display = 'block';
+                btnIniciarCamera.style.display = 'none';
+                btnPararCamera.style.display = 'inline-block';
+                
+                // Iniciar a leitura do QR Code
+                iniciarLeituraQR(video);
+                
+            } catch (err) {
+                console.error('Erro ao acessar a câmera:', err);
+                alert('Não foi possível acessar a câmera. Verifique as permissões do navegador.');
+            }
+        }
+
+        function pararCamera() {
+            if (qrStream) {
+                qrStream.getTracks().forEach(track => track.stop());
+                qrStream = null;
+            }
+            
+            qrScanning = false;
+            
+            const video = document.getElementById('qr-video');
+            const scannerContainer = document.getElementById('qrScannerContainer');
+            const btnIniciarCamera = document.getElementById('btnIniciarCamera');
+            const btnPararCamera = document.getElementById('btnPararCamera');
+            
+            video.srcObject = null;
+            scannerContainer.style.display = 'none';
+            btnIniciarCamera.style.display = 'inline-block';
+            btnPararCamera.style.display = 'none';
+        }
+
+        function iniciarLeituraQR(video) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            qrScanning = true;
+            
+            function scanQRCode() {
+                if (!qrScanning || !video.videoWidth) return;
+                
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    // QR Code encontrado!
+                    exibirResultadoQR(code.data);
+                    pararCamera();
+                } else if (qrScanning) {
+                    // Continuar escaneando
+                    requestAnimationFrame(scanQRCode);
+                }
+            }
+            
+            video.addEventListener('loadedmetadata', () => {
+                scanQRCode();
+            });
+        }
+
+        function processarImagemQR(file) {
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0);
+                    
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    if (code) {
+                        exibirResultadoQR(code.data);
+                    } else {
+                        alert('Nenhum QR Code foi encontrado na imagem.');
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function exibirResultadoQR(codigo) {
+            const qrResult = document.getElementById('qrResult');
+            const qrCodeValue = document.getElementById('qrCodeValue');
+            
+            qrCodeValue.textContent = codigo;
+            qrResult.style.display = 'block';
+        }
+
+        function usarCodigoQR() {
+            const codigo = document.getElementById('qrCodeValue').textContent;
+            document.getElementById('codigoMovel').value = codigo;
+            verificarEtapa1();
+            limparResultadoQR();
+        }
+
+        function limparResultadoQR() {
+            const qrResult = document.getElementById('qrResult');
+            qrResult.style.display = 'none';
+            document.getElementById('qrCodeValue').textContent = '';
+        }
+
+        // Funções de navegação
+        function showSection(sectionId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Ações específicas por seção
+            if (sectionId === 'painelGestorSection') {
+                atualizarPainelGestor();
+            } else if (sectionId === 'escolhaMovelSection') {
+                atualizarInfoConferente();
+            }
+            
+            // Parar a câmera ao sair da seção de conferência
+            if (sectionId !== 'conferenciaSection') {
+                pararCamera();
+            }
+        }
+
+        function selectCategory(categoria) {
+            categoriaSelecionada = categoria;
+            const subtitle = document.getElementById('loginSubtitle');
+            subtitle.textContent = `Acesso ${categoria === 'funcionario' ? 'do Funcionário' : 'do Gestor'}`;
+            showSection('loginSection');
+        }
+
+        // Funções de autenticação
+        function fazerLogin(event) {
+            event.preventDefault();
+            
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+            
+            if (USUARIOS[usuario] && USUARIOS[usuario].senha === senha && USUARIOS[usuario].tipo === categoriaSelecionada) {
+                // Login bem-sucedido
+                usuarioLogado = USUARIOS[usuario];
+                tentativasLogin = 0;
+                
+                // Salvar sessão
+                localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+                
+                // Mostrar informações do usuário
+                document.getElementById('userName').textContent = usuarioLogado.nome;
+                document.getElementById('userInfo').style.display = 'flex';
+                
+                // Redirecionar para a área apropriada
+                if (usuarioLogado.tipo === 'funcionario') {
+                    showSection('escolhaMovelSection');
+                } else {
+                    showSection('painelGestorSection');
+                }
+                
+                // Limpar formulário
+                document.getElementById('loginForm').reset();
+                document.getElementById('loginError').classList.add('d-none');
+                document.getElementById('loginWarning').classList.add('d-none');
+            } else {
+                // Login falhou
+                tentativasLogin++;
+                document.getElementById('loginError').classList.remove('d-none');
+                
+                if (tentativasLogin >= 3) {
+                    document.getElementById('tentativasErro').textContent = tentativasLogin;
+                    document.getElementById('loginWarning').classList.remove('d-none');
+                }
+            }
+        }
+
+        function criarConta(event) {
+            event.preventDefault();
+            
+            const nomeCompleto = document.getElementById('nomeCompleto').value;
+            const email = document.getElementById('email').value;
+            const tipoUsuario = document.getElementById('tipoUsuario').value;
+            const novoUsuario = document.getElementById('novoUsuario').value;
+            const novaSenha = document.getElementById('novaSenha').value;
+            
+            // Validar email
+            if (!validarEmail(document.getElementById('email'))) {
+                return;
+            }
+            
+            // Simular criação de conta
+            setTimeout(() => {
+                document.getElementById('cadastroSuccess').classList.remove('d-none');
+                setTimeout(() => {
+                    showSection('inicializacaoSection');
+                    document.getElementById('cadastroForm').reset();
+                    document.getElementById('cadastroSuccess').classList.add('d-none');
+                }, 2000);
+            }, 1000);
+        }
+
+        function logout() {
+            usuarioLogado = null;
+            localStorage.removeItem('usuarioLogado');
+            document.getElementById('userInfo').style.display = 'none';
+            showSection('welcomeSection');
+        }
+
+        function verificarSessao() {
+            const usuarioSalvo = localStorage.getItem('usuarioLogado');
+            if (usuarioSalvo) {
+                usuarioLogado = JSON.parse(usuarioSalvo);
+                document.getElementById('userName').textContent = usuarioLogado.nome;
+                document.getElementById('userInfo').style.display = 'flex';
+                
+                if (usuarioLogado.tipo === 'funcionario') {
+                    showSection('escolhaMovelSection');
+                } else {
+                    showSection('painelGestorSection');
+                }
+            }
+        }
+
+        // Funções da conferência
+        function iniciarConferencia(movelId) {
+            const movel = MOVEIS.find(m => m.id === movelId);
+            document.getElementById('movelId').value = movelId;
+            document.getElementById('conferenciaTitle').innerHTML = 
+                `<i class="bi bi-clipboard-check me-2"></i>Conferência - ${movel.nome}`;
+            
+            // Reiniciar etapas
+            etapaAtual = 1;
+            document.querySelectorAll('.step-item').forEach((step, index) => {
+                step.classList.remove('completed', 'current');
+                if (index === 0) {
+                    step.classList.add('current');
+                } else {
+                    step.classList.add('pending');
+                }
+            });
+            
+            // Limpar formulário
+            document.getElementById('conferenciaForm').reset();
+            document.querySelectorAll('.photo-preview').forEach(preview => {
+                preview.classList.add('d-none');
+            });
+            
+            // Limpar configurações de QR Code
+            document.getElementById('usarQrCode').checked = false;
+            document.getElementById('qrCodeMethods').style.display = 'none';
+            limparResultadoQR();
+            
+            showSection('conferenciaSection');
+            atualizarProgresso();
+        }
+
+        function verificarEtapa1() {
+            const codigo = document.getElementById('codigoMovel').value;
+            const btnEtapa1 = document.getElementById('btnEtapa1');
+            // Só permite avançar se tiver pelo menos 3 caracteres no código
+            btnEtapa1.disabled = codigo.length < 3;
+        }
+
+        function avancarParaEtapa2() {
+            const codigo = document.getElementById('codigoMovel').value;
+            if (codigo.length < 3) {
+                alert('Por favor, insira um código válido para o móvel (mínimo 3 caracteres)');
+                return;
+            }
+            
+            document.getElementById('step1').classList.remove('current');
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step2').classList.remove('pending');
+            document.getElementById('step2').classList.add('current');
+            etapaAtual = 2;
+            atualizarProgresso();
+        }
+
+        function avancarParaEtapa(etapa) {
+            const currentStep = document.getElementById(`step${etapa - 1}`);
+            const nextStep = document.getElementById(`step${etapa}`);
+            
+            currentStep.classList.remove('current');
+            currentStep.classList.add('completed');
+            nextStep.classList.remove('pending');
+            nextStep.classList.add('current');
+            
+            etapaAtual = etapa;
+            atualizarProgresso();
+        }
+
+        function voltarEtapa(etapa) {
+            const currentStep = document.getElementById(`step${etapa}`);
+            const prevStep = document.getElementById(`step${etapa - 1}`);
+            
+            currentStep.classList.remove('current');
+            currentStep.classList.add('pending');
+            prevStep.classList.remove('completed');
+            prevStep.classList.add('current');
+            
+            etapaAtual = etapa - 1;
+            atualizarProgresso();
+        }
+
+        function toggleObservacao(itemId) {
+            const container = document.getElementById(`${itemId}_obs_container`);
+            const radioDanificado = document.getElementById(`${itemId}_danificado`);
+            const btnEtapa = document.getElementById(`btnEtapa${etapaAtual}`);
+            
+            if (radioDanificado.checked) {
+                container.classList.remove('d-none');
+                btnEtapa.disabled = true; // Desativa até preencher observações
+            } else {
+                container.classList.add('d-none');
+                btnEtapa.disabled = false;
+            }
+        }
+
+        function verificarObservacoes(itemId) {
+            const btnEtapa = document.getElementById(`btnEtapa${etapaAtual}`);
+            const observacoes = document.getElementById(`${itemId}_obs`).value;
+            
+            if (observacoes.trim() !== '') {
+                btnEtapa.disabled = false;
+            } else {
+                btnEtapa.disabled = true;
+            }
+        }
+
+        function previewFoto(itemId, input) {
+            const preview = document.getElementById(`${itemId}_preview`);
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function atualizarProgresso() {
+            const totalSteps = CHECKLIST_ITEMS.length + 2;
+            const progress = ((etapaAtual - 1) / (totalSteps - 1)) * 100;
+            
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${Math.round(progress)}% completo`;
+        }
+
+        function finalizarConferencia(event) {
+            event.preventDefault();
+            
+            const movelId = parseInt(document.getElementById('movelId').value);
+            const codigoMovel = document.getElementById('codigoMovel').value;
+            const movel = MOVEIS.find(m => m.id === movelId);
+            
+            // Verificar se todas as etapas estão completas
+            let todasEtapasCompletas = true;
+            const problemas = [];
+            
+            // Verificar código do móvel
+            if (!codigoMovel || codigoMovel.length < 3) {
+                todasEtapasCompletas = false;
+                problemas.push("Código do móvel é obrigatório (mínimo 3 caracteres)");
+            }
+            
+            // Coletar dados do checklist e verificar se estão completos
+            const dadosChecklist = [];
+            CHECKLIST_ITEMS.forEach(item => {
+                const radioSelecionado = document.querySelector(`input[name="${item.id}"]:checked`);
+                if (!radioSelecionado) {
+                    todasEtapasCompletas = false;
+                    problemas.push(`Item "${item.nome}" não foi avaliado`);
+                    return;
+                }
+                
+                const status = radioSelecionado.value;
+                let observacoes = '';
+                let foto = null;
+                
+                if (status === 'danificado') {
+                    observacoes = document.getElementById(`${item.id}_obs`).value;
+                    const fotoInput = document.getElementById(`${item.id}_foto`);
+                    if (fotoInput.files && fotoInput.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            foto = e.target.result;
+                        };
+                        reader.readAsDataURL(fotoInput.files[0]);
+                    }
+                    
+                    if (!observacoes.trim()) {
+                        todasEtapasCompletas = false;
+                        problemas.push(`Observações são obrigatórias para o item "${item.nome}" marcado como danificado`);
+                    }
+                }
+                
+                dadosChecklist.push({
+                    item: item.nome,
+                    status: status,
+                    observacoes: observacoes,
+                    foto: foto
+                });
+            });
+            
+            if (!todasEtapasCompletas) {
+                alert('Por favor, complete todas as etapas antes de finalizar:\n' + problemas.join('\n'));
+                return;
+            }
+            
+            // Verificar se há algum item danificado
+            const temDanificado = dadosChecklist.some(item => item.status === 'danificado');
+            
+            // Criar registro da conferência
+            const conferencia = {
+                id: Date.now(),
+                dataHora: new Date().toLocaleString('pt-BR'),
+                conferente: usuarioLogado.nome,
+                movel: movel.nome,
+                categoria: movel.categoria,
+                codigo: codigoMovel,
+                status: temDanificado ? 'Com Defeitos' : 'OK',
+                observacoes: dadosChecklist.filter(item => item.observacoes).map(item => 
+                    `${item.item}: ${item.observacoes}`).join('; '),
+                fotos: dadosChecklist.filter(item => item.foto).map(item => item.foto),
+                checklist: dadosChecklist
+            };
+            
+            // Adicionar às conferências
+            conferencias.push(conferencia);
+            localStorage.setItem('conferencias', JSON.stringify(conferencias));
+            
+            // Se houver danos, adicionar ao Kanban
+            if (temDanificado) {
+                const kanbanItem = {
+                    id: Date.now(),
+                    titulo: `${movel.nome} - ${codigoMovel}`,
+                    descricao: dadosChecklist.filter(item => item.observacoes).map(item => 
+                        `${item.item}: ${item.observacoes}`).join('; '),
+                    fotos: dadosChecklist.filter(item => item.foto).map(item => item.foto),
+                    status: 'todo',
+                    data: new Date().toLocaleDateString('pt-BR')
+                };
+                
+                kanbanItems.push(kanbanItem);
+                localStorage.setItem('kanbanItems', JSON.stringify(kanbanItems));
+            }
+            
+            // Mostrar mensagem de sucesso
+            alert('Conferência finalizada com sucesso!');
+            
+            // Voltar para a tela de escolha de móvel
+            showSection('escolhaMovelSection');
+            atualizarInfoConferente();
+        }
+
+        function atualizarInfoConferente() {
+            if (usuarioLogado) {
+                document.getElementById('conferenteInfo').textContent = `Conferente: ${usuarioLogado.nome}`;
+                
+                // Contar conferências do dia
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                const conferenciasHoje = conferencias.filter(c => 
+                    c.dataHora.includes(hoje) && c.conferente === usuarioLogado.nome);
+                
+                document.getElementById('conferenciasCount').textContent = conferenciasHoje.length;
+            }
+        }
+
+        // Funções do painel do gestor
+        function atualizarPainelGestor() {
+            // Atualizar estatísticas
+            const totalConferencias = conferencias.length;
+            const totalOk = conferencias.filter(c => c.status === 'OK').length;
+            const totalDanificado = conferencias.filter(c => c.status === 'Com Defeitos').length;
+            const conferentesUnicos = [...new Set(conferencias.map(c => c.conferente))].length;
+            const taxaConclusao = totalConferencias > 0 ? Math.round((totalOk / totalConferencias) * 100) : 0;
+            
+            document.getElementById('totalConferencias').textContent = `${totalConferencias} conferências`;
+            document.getElementById('totalOk').textContent = totalOk;
+            document.getElementById('totalDanificado').textContent = totalDanificado;
+            document.getElementById('totalConferentes').textContent = conferentesUnicos;
+            document.getElementById('taxaConclusao').textContent = `${taxaConclusao}%`;
+            
+            // Atualizar tabela com fotos
+            const tabela = document.getElementById('conferenciasTable');
+            tabela.innerHTML = conferencias.slice(-10).reverse().map(c => `
+                <tr>
+                    <td>${c.dataHora}</td>
+                    <td>${c.conferente}</td>
+                    <td>${c.movel}</td>
+                    <td>${c.codigo}</td>
+                    <td>
+                        <span class="badge ${c.status === 'OK' ? 'bg-success' : 'bg-danger'}">
+                            ${c.status}
+                        </span>
+                    </td>
+                    <td>${c.observacoes || 'Nenhuma'}</td>
+                    <td>
+                        ${c.fotos && c.fotos.length > 0 ? 
+                            c.fotos.map((foto, index) => 
+                                `<img src="${foto}" class="photo-preview me-1" style="max-height: 50px; cursor: pointer;" 
+                                      onclick="abrirFoto('${foto}')" title="Foto ${index + 1}">`
+                            ).join('') : 
+                            'Nenhuma'
+                        }
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Atualizar Kanban
+            atualizarKanban();
+            
+            // Atualizar gráficos
+            atualizarGraficos();
+        }
+
+        function abrirFoto(foto) {
+            // Abrir foto em tamanho maior
+            const modal = document.createElement('div');
+            modal.className = 'modal fade show d-block';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Foto do Defeito</h5>
+                            <button type="button" class="btn-close" onclick="this.closest('.modal').remove()"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${foto}" class="img-fluid" style="max-height: 70vh;">
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Fechar modal ao clicar fora
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function atualizarKanban() {
+            const todoColumn = document.getElementById('todoColumn');
+            const doingColumn = document.getElementById('doingColumn');
+            const doneColumn = document.getElementById('doneColumn');
+            
+            todoColumn.innerHTML = '';
+            doingColumn.innerHTML = '';
+            doneColumn.innerHTML = '';
+            
+            kanbanItems.forEach(item => {
+                const kanbanItem = document.createElement('div');
+                kanbanItem.className = 'kanban-item';
+                kanbanItem.draggable = true;
+                kanbanItem.innerHTML = `
+                    <h6 class="mb-1">${item.titulo}</h6>
+                    <p class="small text-muted mb-2">${item.descricao}</p>
+                    ${item.fotos && item.fotos.length > 0 ? 
+                        `<div class="mb-2">
+                            ${item.fotos.map((foto, index) => 
+                                `<img src="${foto}" class="photo-preview me-1" style="max-height: 40px; cursor: pointer;" 
+                                      onclick="abrirFoto('${foto}')" title="Foto ${index + 1}">`
+                            ).join('')}
+                        </div>` : ''
+                    }
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">${item.data}</small>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editarKanbanItem(${item.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                kanbanItem.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item.id);
+                });
+                
+                if (item.status === 'todo') {
+                    todoColumn.appendChild(kanbanItem);
+                } else if (item.status === 'doing') {
+                    doingColumn.appendChild(kanbanItem);
+                } else {
+                    doneColumn.appendChild(kanbanItem);
+                }
+            });
+            
+            // Configurar zonas de drop
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    column.classList.add('bg-light');
+                });
+                
+                column.addEventListener('dragleave', () => {
+                    column.classList.remove('bg-light');
+                });
+                
+                column.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    column.classList.remove('bg-light');
+                    
+                    const itemId = parseInt(e.dataTransfer.getData('text/plain'));
+                    const newStatus = column.classList.contains('todo') ? 'todo' : 
+                                     column.classList.contains('doing') ? 'doing' : 'done';
+                    
+                    // Atualizar status do item
+                    const itemIndex = kanbanItems.findIndex(item => item.id === itemId);
+                    if (itemIndex !== -1) {
+                        kanbanItems[itemIndex].status = newStatus;
+                        localStorage.setItem('kanbanItems', JSON.stringify(kanbanItems));
+                        atualizarKanban();
+                    }
+                });
+            });
+        }
+
+        function editarKanbanItem(itemId) {
+            const item = kanbanItems.find(item => item.id === itemId);
+            if (item) {
+                const novoStatus = prompt('Alterar status (todo, doing, done):', item.status);
+                if (novoStatus && ['todo', 'doing', 'done'].includes(novoStatus)) {
+                    item.status = novoStatus;
+                    localStorage.setItem('kanbanItems', JSON.stringify(kanbanItems));
+                    atualizarKanban();
+                }
+            }
+        }
+
+        function atualizarGraficos() {
+            // Gráfico por móvel
+            const movelCounts = {};
+            MOVEIS.forEach(movel => {
+                movelCounts[movel.nome] = conferencias.filter(c => c.movel === movel.nome).length;
+            });
+            
+            const ctxMovel = document.getElementById('graficoMovel').getContext('2d');
+            if (window.graficoMovelInstance) {
+                window.graficoMovelInstance.destroy();
+            }
+            window.graficoMovelInstance = new Chart(ctxMovel, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(movelCounts),
+                    datasets: [{
+                        label: 'Conferências por Móvel',
+                        data: Object.values(movelCounts),
+                        backgroundColor: 'rgba(44, 62, 110, 0.7)',
+                        borderColor: 'rgba(44, 62, 110, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico por categoria
+            const categoriaCounts = {};
+            const categorias = [...new Set(MOVEIS.map(m => m.categoria))];
+            categorias.forEach(categoria => {
+                categoriaCounts[categoria] = conferencias.filter(c => {
+                    const movel = MOVEIS.find(m => m.nome === c.movel);
+                    return movel && movel.categoria === categoria;
+                }).length;
+            });
+            
+            const ctxCategoria = document.getElementById('graficoCategoria').getContext('2d');
+            if (window.graficoCategoriaInstance) {
+                window.graficoCategoriaInstance.destroy();
+            }
+            window.graficoCategoriaInstance = new Chart(ctxCategoria, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoriaCounts),
+                    datasets: [{
+                        data: Object.values(categoriaCounts),
+                        backgroundColor: [
+                            'rgba(44, 62, 110, 0.7)',
+                            'rgba(212, 175, 55, 0.7)',
+                            'rgba(39, 174, 96, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+    </script>
+</body>
+</html>
